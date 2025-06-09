@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JidiqiyeLiuyanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jidiqiye_id as jidiqiyeId
+        ,a.yonghu_id as yonghuId
+        ,a.jidiqiye_liuyan_content as jidiqiyeLiuyanContent
+        ,a.reply_content as replyContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JidiqiyeLiuyanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,jidiqiye.jidiqiye_name as jidiqiyeName
+        ,jidiqiye.jidiqiye_types as jidiqiyeTypes
+        ,jidiqiye.jidiqiye_photo as jidiqiyePhoto
+        ,jidiqiye.jidiqiye_content as jidiqiyeContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.role as role
+
+        FROM jidiqiye_liuyan  a
+        left JOIN jidiqiye jidiqiye ON a.jidiqiye_id = jidiqiye.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.jidiqiyeId != null">
+                and a.jidiqiye_id = #{params.jidiqiyeId}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.jidiqiyeLiuyanContent != '' and params.jidiqiyeLiuyanContent != null and params.jidiqiyeLiuyanContent != 'null' ">
+                and a.jidiqiye_liuyan_content like CONCAT('%',#{params.jidiqiyeLiuyanContent},'%')
+            </if>
+            <if test=" params.replyContent != '' and params.replyContent != null and params.replyContent != 'null' ">
+                and a.reply_content like CONCAT('%',#{params.replyContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+            <if test=" params.jidiqiyeName != '' and params.jidiqiyeName != null and params.jidiqiyeName != 'null' ">
+                and jidiqiye.jidiqiye_name like CONCAT('%',#{params.jidiqiyeName},'%')
+            </if>
+            <if test="params.jidiqiyeTypes != null">
+                and jidiqiye.jidiqiye_types = #{params.jidiqiyeTypes}
+            </if>
+
+            <if test=" params.jidiqiyeContent != '' and params.jidiqiyeContent != null and params.jidiqiyeContent != 'null' ">
+                and jidiqiye.jidiqiye_content like CONCAT('%',#{params.jidiqiyeContent},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.role != '' and params.role != null and params.role != 'null' ">
+                and yonghu.role like CONCAT('%',#{params.role},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CukoujidiLiuyanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.cukoujidi_id as cukoujidiId
+        ,a.yonghu_id as yonghuId
+        ,a.cukoujidi_liuyan_content as cukoujidiLiuyanContent
+        ,a.reply_content as replyContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CukoujidiLiuyanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,cukoujidi.cukoujidi_name as cukoujidiName
+        ,cukoujidi.cukoujidi_dizhi as cukoujidiDizhi
+        ,cukoujidi.jidiqiye_types as jidiqiyeTypes
+        ,cukoujidi.cukoujidi_photo as cukoujidiPhoto
+        ,cukoujidi.cukoujidi_content as cukoujidiContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.role as role
+
+        FROM cukoujidi_liuyan  a
+        left JOIN cukoujidi cukoujidi ON a.cukoujidi_id = cukoujidi.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.cukoujidiId != null">
+                and a.cukoujidi_id = #{params.cukoujidiId}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.cukoujidiLiuyanContent != '' and params.cukoujidiLiuyanContent != null and params.cukoujidiLiuyanContent != 'null' ">
+                and a.cukoujidi_liuyan_content like CONCAT('%',#{params.cukoujidiLiuyanContent},'%')
+            </if>
+            <if test=" params.replyContent != '' and params.replyContent != null and params.replyContent != 'null' ">
+                and a.reply_content like CONCAT('%',#{params.replyContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+            <if test=" params.cukoujidiName != '' and params.cukoujidiName != null and params.cukoujidiName != 'null' ">
+                and cukoujidi.cukoujidi_name like CONCAT('%',#{params.cukoujidiName},'%')
+            </if>
+            <if test=" params.cukoujidiDizhi != '' and params.cukoujidiDizhi != null and params.cukoujidiDizhi != 'null' ">
+                and cukoujidi.cukoujidi_dizhi like CONCAT('%',#{params.cukoujidiDizhi},'%')
+            </if>
+            <if test="params.jidiqiyeTypes != null">
+                and cukoujidi.jidiqiye_types = #{params.jidiqiyeTypes}
+            </if>
+
+            <if test=" params.cukoujidiContent != '' and params.cukoujidiContent != null and params.cukoujidiContent != 'null' ">
+                and cukoujidi.cukoujidi_content like CONCAT('%',#{params.cukoujidiContent},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.role != '' and params.role != null and params.role != 'null' ">
+                and yonghu.role like CONCAT('%',#{params.role},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
